@@ -278,7 +278,7 @@ a{color:var(--accent2)}
 </style>
 </head>
 <body>
-<header><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><button onclick="window.location.href='index.html'" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;padding:6px 12px;border-radius:12px;font-size:14px;font-weight:bold;cursor:pointer;white-space:nowrap">🏠 الرئيسية</button><span id="shopTitle">📒 الصمدي الرويس</span> <button class="sm ghost" style="padding:1px 7px;background:transparent;color:#fff;border-color:rgba(255,255,255,.6);vertical-align:middle" onclick="renameShop()" title="غيّر اسم المحل">✏️</button></div><div style="font-size:12px;font-weight:normal;opacity:.85">دفتر المحاسبة <span id="yearTop"></span></div>
+<header><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><button onclick="window.location.href='index.html'" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;padding:6px 12px;border-radius:12px;font-size:14px;font-weight:bold;cursor:pointer;white-space:nowrap">🏠 الرئيسية</button><span id="shopTitle">📒 الصمدي الرويس</span> <button class="sm ghost" style="padding:1px 7px;background:transparent;color:#fff;border-color:rgba(255,255,255,.6);vertical-align:middle" onclick="renameShop()" title="غيّر اسم المحل">✏️</button></div><div style="font-size:12px;font-weight:normal;opacity:.85">دفتر المحاسبة <select id="yearTopSelect" onchange="changeYear(this.value)" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:8px;padding:2px 6px;font-size:12px;cursor:pointer;outline:none"></select><span id="yearTop" style="display:none"></span></div>
  <div class="row" style="justify-content:center">
   <button class="sm ghost" style="margin-top:8px;background:transparent;color:#fff;border-color:#fff" onclick="downloadBackup()">⬇️ نسخة احتياطية (JSON)</button>
   <button class="sm ghost" style="margin-top:8px;background:transparent;color:#fff;border-color:#fff" onclick="exportExcel()">📊 تصدير Excel</button>
@@ -694,13 +694,28 @@ async function delWd(id){
 }
 
 /* ---------- جردة - كل الأشهر من ١ لـ ١٢ ---------- */
-const YEAR=+(new URLSearchParams(location.search).get('y'))||2026;
+const YEAR=+(new URLSearchParams(location.search).get('y'))||new Date().getFullYear();
+function fillYearSelect(){
+  const sel=document.getElementById('yearTopSelect'); if(!sel) return;
+  const curY=new Date().getFullYear(); const startY=2026; const endY=Math.max(2035, curY+5);
+  let opts=''; for(let y=startY;y<=endY;y++){ opts+=`<option value="${y}" ${y===YEAR?'selected':''}>${y}</option>`; }
+  sel.innerHTML=opts;
+  const yt=document.getElementById('yearTop'); if(yt) yt.textContent=YEAR;
+}
+function changeYear(newY){
+  const y=+newY; if(!y||y===YEAR) return;
+  const params=new URLSearchParams(location.search);
+  params.set('y', y);
+  // حدّث كود الدفتر b ليطابق السنة الجديدة: شيل السنة القديمة وحط الجديدة
+  const b=params.get('b')||''; const parts=b.split('-'); parts[parts.length-1]=String(y); params.set('b', parts.join('-'));
+  location.search=params.toString();
+}
 let curMonth=1,curDay=1,curPage=1,curDoc={expenses:[],withdrawals:[],box1:0,box2:0,jardaValue:0},isDirty=false;
 let wdMonthFilter='1', wdAllDocs=[];
 const MONTHS={1:'كانون الثاني (١)',2:'شباط (٢)',3:'آذار (٣)',4:'نيسان (٤)',5:'أيار (٥)',6:'حزيران (٦)',7:'تموز (٧)',8:'آب (٨)',9:'أيلول (٩)',10:'تشرين الأول (١٠)',11:'تشرين الثاني (١١)',12:'كانون الأول (١٢)'};
 const DAYS_IN={1:31,2:(((YEAR%4===0&&YEAR%100!==0)||YEAR%400===0)?29:28),3:31,4:30,5:31,6:30,7:31,8:31,9:30,10:31,11:30,12:31};
 // عرض السنة الصح فوق - مش 2026 ثابتة
-setTimeout(()=>{ const y=document.getElementById('yearTop'); if(y) y.textContent=YEAR; }, 0);
+setTimeout(()=>{ fillYearSelect(); }, 0);
  document.addEventListener('DOMContentLoaded', ()=>{ const y=document.getElementById('yearTop'); if(y) y.textContent=YEAR; });
 async function guardNav(fn){
  if(pageBusy){ toast('⏳ لحظة، عم يخلص الحفظ...'); try{ await pageBusy; }catch(e){} }
