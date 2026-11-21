@@ -334,58 +334,29 @@ function chooseSavedAccount(i){
 }
 function removeSavedAccount(i){ let list=getSavedAccounts(); list.splice(i,1); try{ localStorage.setItem('daftar2_saved_accounts', JSON.stringify(list)); }catch(e){} renderSavedAccounts(); }
 async function googleLogin(){
-  // 1. جرّب الغوغل الحقيقي تبع التلفون أولاً - هيدا يلي بيطلعلك حسابات Gmail الموجودين بالتلفون
-  const native = await tryNativeGoogleLogin();
-  if(native) return; // إذا نجح، خلص، ما منفتح الشيت التقليد
-  // 2. إذا الـ Plugin مش مركّب بعد، افتح الشيت التقليد كبديل مؤقت
+  // الغوغل الحقيقي تبع Firebase - بيفتح صفحة Google الأصلية، فيها كل حسابات Gmail بالتلفون
+  try{
+    if(window.firebase && window.firebase.auth){
+      try{
+        if(!window.firebase.apps || !window.firebase.apps.length){
+          let cfg=null; try{ if(window.firebaseConfig) cfg=window.firebaseConfig; }catch(e){}
+          try{ if(!cfg && typeof firebaseConfig!=='undefined') cfg=firebaseConfig; }catch(e){}
+          try{ if(!cfg && window.FIREBASE_CONFIG) cfg=window.FIREBASE_CONFIG; }catch(e){}
+          if(cfg) window.firebase.initializeApp(cfg);
+        }
+      }catch(e){}
+      const auth=window.firebase.auth();
+      const provider=new window.firebase.auth.GoogleAuthProvider();
+      provider.setCustomParameters({prompt:'select_account'});
+      await auth.signInWithRedirect(provider);
+      return;
+    }
+  }catch(e){}
   const m=document.getElementById('googleModal'); if(m) m.style.display='flex';
   renderSavedAccounts();
   const o=document.getElementById('googleSheetOptions'); if(o) o.style.display='none';
-  const inp=document.getElementById('googleEmailInput'); if(inp){ inp.value=''; }
-  // نبّه المستخدم مرة وحدة إنو الحقيقي مش مركّب بعد
-  try{ if(!localStorage.getItem('dm_native_warned')){ localStorage.setItem('dm_native_warned','1'); setTimeout(()=>{ alert('ملاحظة: هيدا الشيت التقليد.\nعشان يطلعلك الغوغل الحقيقي تبع Gmail، لازم ترفع ملف package.json الجديد (فيه Plugin الغوغل) وتبني من جديد.\nبعد البناء الجديد، رح يطلعلك حسابات Gmail دغري.'); }, 400); } }catch(e){}
 }
-async function tryNativeGoogleLogin(){
-  try{
-    // Plugin: @codetrix-studio/capacitor-google-auth
-    let plugin = window.CapacitorGoogleAuth || (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.CapacitorGoogleAuth) || null;
-    // جرب كمان اسم تاني
-    if(!plugin && window.CapacitorGoogleAuth) plugin=window.CapacitorGoogleAuth;
-    if(!plugin){
-      // جرّب Firebase Authentication الأصلي
-      if(window.CapacitorFirebaseAuthentication){
-        try{
-          const res=await window.CapacitorFirebaseAuthentication.signInWithGoogle();
-          if(res && res.user && res.user.email){
-            const u=res.user;
-            const acc={email:u.email, name:u.displayName||u.email.split('@')[0], loginType:'google'};
-            try{ localStorage.setItem('daftar2_google_user', JSON.stringify({email:u.email, name:acc.name, loginAt:new Date().toISOString(), loginType:'google', realGoogle:true, native:true})); saveAccountToList(acc); }catch(e){}
-            renderLogin(); loadShopsFromCloud().then(()=>{ renderLogin(); renderShops(); });
-            return true;
-          }
-        }catch(e){ return false; }
-      }
-      return false;
-    }
-    // هون بيطلع الشيت الحقيقي تبع Google من نظام أندرويد - فيه كل حسابات Gmail بالتلفون
-    const result = await plugin.signIn();
-    const user = result.user || result;
-    const email = user.email || user.userEmail || '';
-    if(!email) return false;
-    const name = user.name || user.displayName || email.split('@')[0];
-    const acc={email:email, name:name, loginType:'google'};
-    try{ localStorage.setItem('daftar2_google_user', JSON.stringify({email:email, name:name, photo:user.imageUrl||user.photoURL||'', loginAt:new Date().toISOString(), loginType:'google', realGoogle:true, native:true})); saveAccountToList(acc); }catch(e){}
-    try{ localStorage.removeItem('dm_native_warned'); }catch(e){}
-    renderLogin();
-    try{ loadShopsFromCloud().then(found=>{ if(found) alert('✅ أهلاً '+name+'! لقيت معلوماتك.'); else syncShopsToCloud(); }); }catch(e){}
-    return true;
-  }catch(e){
-    // إذا المستخدم كبس Cancel بالشيت الحقيقي، ما منفتح التقليد
-    if(e && (String(e.message||'').toLowerCase().includes('cancel') || String(e.code||'').toLowerCase().includes('cancel'))) return true;
-    return false;
-  }
-}
-function openNativeGoogleAgain(){ tryNativeGoogleLogin().then(ok=>{ if(!ok) alert('الغوغل الحقيقي مش مركّب بعد.\nارفع package.json الجديد وابني من جديد، وبعدها رح يطلعلك حسابات Gmail دغري.'); }); }
+function openNativeGoogleAgain(){ googleLogin(); }
 function googleLoginReal(){
   // محاولة فتح قائمة حسابات Google الحقيقية - بيطلعلك كل حساباتك وتختار
   try{
