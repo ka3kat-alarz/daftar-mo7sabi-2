@@ -1,0 +1,84 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>دفتر المحاسبة 2</title><style>
+:root{color-scheme:light;--navy:#09213d;--blue:#2367a6;--gold:#e7b34d;--ink:#172b45;--muted:#718096;--line:#dce6f2}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;padding:0 14px 28px;background:radial-gradient(ellipse at 15% 0%,#d8eaff 0,transparent 42%),linear-gradient(180deg,#eaf1fa,#f5f7fb);font-family:Tahoma,Arial,sans-serif;color:var(--ink)}
+header{max-width:760px;margin:0 auto 18px;padding:28px 20px 24px;border-radius:0 0 28px 28px;background:linear-gradient(130deg,#071a31,#174b7c 68%,#286da4);color:#fff;box-shadow:0 16px 34px #0b315327;position:relative;overflow:hidden}
+header:after{content:"";position:absolute;width:220px;height:220px;border-radius:50%;background:#8bc8ff22;right:-80px;top:-125px}
+h1{font-size:25px;margin:0 0 7px;color:#fff;position:relative;z-index:1}header p{margin:0;color:#d9e9f8;position:relative;z-index:1}
+main{max-width:760px;margin:auto}.c{background:rgba(255,255,255,.9);border:1px solid #fff;border-radius:19px;padding:16px;margin:12px 0;box-shadow:0 8px 24px #173c6410;backdrop-filter:blur(12px)}
+.c b{font-size:16px;display:block;margin-bottom:10px}.c div{display:flex;gap:7px;flex-wrap:wrap}a{background:linear-gradient(135deg,#174675,#2e79b5);color:#fff;text-decoration:none;padding:9px 15px;border-radius:12px;font-weight:bold;box-shadow:0 4px 10px #1b568b22;min-width:68px;text-align:center}
+a:active{transform:scale(.97)}
+.bottombar{display:flex;justify-content:center;margin:18px auto 4px;max-width:760px}
+.bottombar button{border:none;border-radius:14px;padding:13px 26px;font-weight:bold;font-size:16px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.12);width:100%;max-width:760px}
+.btn-add{background:linear-gradient(135deg,#e7b34d,#f2c96e);color:#071a31}
+.shop-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
+.shop-head b{margin:0;flex:1}
+.shop-actions{display:flex;gap:6px}
+.shop-actions button{border:1px solid #dce6f2;background:#fff;border-radius:10px;padding:6px 10px;font-size:13px;cursor:pointer}
+.hint{text-align:center;color:#718096;font-size:13px;margin:8px 0}
+@media(max-width:430px){body{padding:0 10px 20px}header{padding:25px 17px 22px}h1{font-size:22px}.c{padding:14px;border-radius:17px}.c b{font-size:14px}a{padding:8px 11px;font-size:13px;min-width:58px}}
+</style></head><body><header><h1>📒 دفتر المحاسبة 2</h1><p>إدارة الحسابات والفروع — اختر الدفتر والسنة</p></header>
+<p class="hint">كبس ✏️ عدّل لتعديل اسم المحل.</p>
+<main id="shopsList"></main>
+<div class="bottombar"><button class="btn-add" onclick="addShop()">➕ زيد محل جديد</button></div><script src="shim.js"></script><script>
+// السنوات بتزيد لحالها: من 2026 لحد سنة اليوم + 5، وما بتقل عن 2035
+const START_YEAR=2026;
+const END_YEAR=Math.max(2035, new Date().getFullYear()+5);
+const YEARS=[]; for(let y=START_YEAR;y<=END_YEAR;y++) YEARS.push(y);
+const DEFAULT_SHOPS=[
+ {name:'الصمدي الرويس',code:'ruwais'},
+ {name:'كعكة الأرز',code:'arz'},
+ {name:'الصمدي البرج',code:'burj'},
+ {name:'الصمدي المجمع',code:'mujamma'},
+ {name:'ملحمة الصمدي',code:'malhama'},
+ {name:'محل 6',code:'shop6'},
+ {name:'محل 7',code:'shop7'},
+ {name:'محل 8',code:'shop8'},
+ {name:'محل 9',code:'shop9'},
+ {name:'محل 10',code:'shop10'}
+];
+const KEY='daftar2_shops_v1';
+function loadShops(){
+ try{
+  const s=JSON.parse(localStorage.getItem(KEY)||'null');
+  if(Array.isArray(s)&&s.length) return s;
+ }catch(e){}
+ return JSON.parse(JSON.stringify(DEFAULT_SHOPS));
+}
+let shops=loadShops();
+function saveShops(){ try{ localStorage.setItem(KEY, JSON.stringify(shops)); }catch(e){} }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function renderShops(){
+ const el=document.getElementById('shopsList');
+ el.innerHTML=shops.map((sh,idx)=>{
+  const years=YEARS.map(y=>`<a href="ledger.html?b=${encodeURIComponent(sh.code+'-'+y)}&y=${y}&n=${encodeURIComponent(sh.name)}">${y}</a>`).join('');
+  return `<div class="c"><div class="shop-head"><b>${esc(sh.name)}</b><div class="shop-actions"><button onclick="editShop(${idx})" title="عدّل الاسم">✏️ عدّل</button></div></div><div>${years}</div></div>`;
+ }).join('');
+}
+function addShop(){
+ const name=prompt('اسم المحل الجديد:');
+ if(!name||!name.trim()) return;
+ const clean=name.trim();
+ // كود فريد للمحل الجديد - ما بيتكرر
+ const code='shop'+Date.now().toString().slice(-8);
+ shops.push({name:clean,code:code});
+ saveShops(); renderShops();
+}
+function editShop(idx){
+ const sh=shops[idx]; if(!sh) return;
+ const choice=prompt('شو بدك تعمل بـ "'+sh.name+'"؟\nاكتب 1 للتعديل، 2 للحذف:', '1');
+ if(choice===null) return;
+ if(String(choice).trim()==='2'){
+  const pass=prompt('حط كلمة السر لتمسح المحل:');
+  if(pass!=='6872'){ alert('كلمة السر غلط!'); return; }
+  if(!confirm('أكيد بدك تمسح "'+sh.name+'"؟')) return;
+  shops.splice(idx,1);
+  saveShops(); renderShops();
+  return;
+ }
+ const name=prompt('عدّل اسم المحل:', sh.name);
+ if(!name||!name.trim()) return;
+ sh.name=name.trim();
+ saveShops(); renderShops();
+}
+renderShops();
+</script></body></html>
