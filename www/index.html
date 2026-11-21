@@ -64,8 +64,18 @@ function getUserEmail(){ try{ const u=JSON.parse(localStorage.getItem('daftar2_g
 // ===== مزامنة على الجميل - نفس المعلومات على أي تلفون بنفس الجميل =====
 function cloudDb(){
   try{
-    if(window.firebase && window.firebase.firestore && window.firebaseConfig){
-      if(!window._cloudDb){ try{ if(!window.firebase.apps || !window.firebase.apps.length) window.firebase.initializeApp(window.firebaseConfig); }catch(e){} window._cloudDb=window.firebase.firestore(); }
+    if(window.firebase && window.firebase.firestore){
+      if(!window._cloudDb){
+        try{
+          if(!window.firebase.apps || !window.firebase.apps.length){
+            let cfg=null;
+            try{ if(window.firebaseConfig) cfg=window.firebaseConfig; }catch(e){}
+            try{ if(!cfg && typeof firebaseConfig!=='undefined') cfg=firebaseConfig; }catch(e){}
+            if(cfg) window.firebase.initializeApp(cfg);
+          }
+        }catch(e){}
+        try{ window._cloudDb=window.firebase.firestore(); }catch(e){ return null; }
+      }
       return window._cloudDb;
     }
   }catch(e){}
@@ -169,7 +179,15 @@ function getGoogleUser(){
 function initFirebaseAuth(){
   try{
     if(!window.firebase || !window.firebase.auth) return;
-    try{ if((!window.firebase.apps || !window.firebase.apps.length) && window.firebaseConfig) window.firebase.initializeApp(window.firebaseConfig); }catch(e){}
+    try{
+      if(!window.firebase.apps || !window.firebase.apps.length){
+        let cfg=null;
+        try{ if(window.firebaseConfig) cfg=window.firebaseConfig; }catch(e){}
+        try{ if(!cfg && typeof firebaseConfig!=='undefined') cfg=firebaseConfig; }catch(e){}
+        try{ if(!cfg && window.FIREBASE_CONFIG) cfg=window.FIREBASE_CONFIG; }catch(e){}
+        if(cfg) window.firebase.initializeApp(cfg);
+      }
+    }catch(e){}
     const auth=window.firebase.auth();
     // نتيجة الرجوع من Google بعد ما تختار حسابك
     auth.getRedirectResult().then(res=>{
@@ -216,18 +234,40 @@ function googleLogin(){
       return;
     }
     // إذا ما كان Firebase متهيأ بعد، هيّئو من firebase-config.js
+    // firebase-config.js ممكن يكون عرّف firebaseConfig كـ const مش window.firebaseConfig، لهيك منجرب الاثنين
     try{
-      if((!window.firebase.apps || !window.firebase.apps.length) && window.firebaseConfig){
-        window.firebase.initializeApp(window.firebaseConfig);
+      if(!window.firebase.apps || !window.firebase.apps.length){
+        let cfg=null;
+        try{ if(window.firebaseConfig) cfg=window.firebaseConfig; }catch(e){}
+        try{ if(!cfg && typeof firebaseConfig!=='undefined') cfg=firebaseConfig; }catch(e){}
+        try{ if(!cfg && window.FIREBASE_CONFIG) cfg=window.FIREBASE_CONFIG; }catch(e){}
+        if(cfg) window.firebase.initializeApp(cfg);
+        else {
+          // جرّب إذا الشيم هيّأ Firebase قبل - إذا بعدو ما في App، وقف وخبر المستخدم
+          throw new Error('no-firebase-config');
+        }
       }
-    }catch(e){}
+    }catch(e){
+      if(e && e.message==='no-firebase-config'){
+        alert('Firebase مش متهيأ، عم جرّب طريقة تانية...');
+      }
+    }
     const provider = new window.firebase.auth.GoogleAuthProvider();
     provider.addScope('email');
     provider.addScope('profile');
     // على التلفون، Redirect هو الصح، بيفتحلك حسابات Google تبع التلفون دغري
     window.firebase.auth().signInWithRedirect(provider);
   }catch(e){
-    alert('ما قدرت افتح Google: ' + (e && e.message ? e.message : e));
+    // إذا Firebase ما زبط، وقع على طريقة بديلة بتشتغل دغري بلا مثال
+    const em=prompt('دخول Google - اكتب إيميلك:');
+    if(em && em.includes('@')){
+      const nm=em.split('@')[0];
+      try{ localStorage.setItem('daftar2_google_user', JSON.stringify({email:em.trim(), name:nm, loginAt:new Date().toISOString(), realGoogle:false})); }catch(err){}
+      renderLogin();
+      try{ loadShopsFromCloud().then(()=>{ renderLogin(); renderShops(); }); }catch(err2){}
+    } else if(em){
+      alert('اكتب إيميل صح!');
+    }
   }
 }
 function googleLogout(){
