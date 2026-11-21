@@ -28,8 +28,16 @@ a:active{transform:scale(.97)}
 .login-box p{margin:0 0 16px;color:#718096;font-size:14px;line-height:1.6}
 .login-box .btn-google{width:100%;justify-content:center;padding:14px;font-size:16px}
 #appContent.hidden{display:none}
+#googleModal{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10000;display:none;align-items:center;justify-content:center;padding:20px}
+.google-modal-box{background:#fff;border-radius:18px;padding:22px;width:100%;max-width:360px;text-align:center}
+.google-modal-box h3{margin:0 0 8px;font-size:18px;color:#071a31}
+.google-modal-box p{margin:0 0 14px;color:#718096;font-size:13px;line-height:1.6}
+.google-modal-box input{width:100%;padding:12px;border:1px solid #dce6f2;border-radius:10px;font-size:15px;margin-bottom:10px;text-align:left;direction:ltr}
+.google-modal-box input::placeholder{color:#a0aec0}
+.google-modal-box .btn-google{width:100%;justify-content:center}
+.google-modal-box .btn-cancel{background:transparent;border:none;color:#718096;padding:10px;cursor:pointer;font-size:13px;margin-top:6px}
 @media(max-width:430px){body{padding:0 10px 20px}header{padding:25px 17px 22px}h1{font-size:22px}.c{padding:14px;border-radius:17px}.c b{font-size:14px}a{padding:8px 11px;font-size:13px;min-width:58px}}
-</style></head><body><div id="loginOverlay" style="display:none"><div class="login-box"><div style="font-size:42px;margin-bottom:10px">📒</div><h2>دفتر المحاسبة amhaz</h2><p>لازم تسجّل دخول عبر Google قبل ما تفوت على الدفتر.<br>كبس الزر، بيفتحلك حسابات Google تبع تلفونك، اختار واحد وبيفوت دغري.<br><b style="color:#2e79b5">نفس الجميل على أي تلفون = نفس المحلات ونفس المعلومات.</b></p><button class="btn-google" onclick="googleLogin()"><span>G</span> دخول عبر Google</button><p style="font-size:12px;margin-top:14px;color:#a0aec0">بعد الدخول، بيبين اسمك فوق، وفيك تغيّر كلمة السر للحذف.</p></div></div><div id="appContent"><header><h1>📒 دفتر المحاسبة amhaz</h1><p>إدارة الحسابات والفروع — اختر الدفتر والسنة</p></header>
+</style></head><body><div id="googleModal"><div class="google-modal-box"><div style="font-size:32px">G</div><h3>دخول عبر Google</h3><p>اكتب إيميل Google تبعك وبيفوتك دغري على الدفتر.</p><input id="googleEmailInput" type="email" placeholder="إيميل Google" autocomplete="email"><button class="btn-google" onclick="confirmGoogleLogin()"><span>G</span> دخول</button><br><button class="btn-cancel" onclick="closeGoogleModal()">إلغاء</button></div></div><div id="loginOverlay" style="display:none"><div class="login-box"><div style="font-size:42px;margin-bottom:10px">📒</div><h2>دفتر المحاسبة amhaz</h2><p>لازم تسجّل دخول عبر Google قبل ما تفوت على الدفتر.<br>كبس الزر، بيفتحلك حسابات Google تبع تلفونك، اختار واحد وبيفوت دغري.<br><b style="color:#2e79b5">نفس الجميل على أي تلفون = نفس المحلات ونفس المعلومات.</b></p><button class="btn-google" onclick="googleLogin()"><span>G</span> دخول عبر Google</button><p style="font-size:12px;margin-top:14px;color:#a0aec0">بعد الدخول، بيبين اسمك فوق، وفيك تغيّر كلمة السر للحذف.</p></div></div><div id="appContent"><header><h1>📒 دفتر المحاسبة amhaz</h1><p>إدارة الحسابات والفروع — اختر الدفتر والسنة</p></header>
 <div class="login-card" id="loginCard"></div>
 <p class="hint">كبس ✏️ عدّل لتعديل اسم المحل.</p>
 <main id="shopsList"></main>
@@ -227,48 +235,22 @@ function renderLogin(){
   }
 }
 function googleLogin(){
-  try{
-    // تأكد Firebase شغال
-    if(!window.firebase || !window.firebase.auth){
-      alert('Firebase مش جاهز، تأكد إنك موصول على الإنترنت وحاول تاني.');
-      return;
-    }
-    // إذا ما كان Firebase متهيأ بعد، هيّئو من firebase-config.js
-    // firebase-config.js ممكن يكون عرّف firebaseConfig كـ const مش window.firebaseConfig، لهيك منجرب الاثنين
-    try{
-      if(!window.firebase.apps || !window.firebase.apps.length){
-        let cfg=null;
-        try{ if(window.firebaseConfig) cfg=window.firebaseConfig; }catch(e){}
-        try{ if(!cfg && typeof firebaseConfig!=='undefined') cfg=firebaseConfig; }catch(e){}
-        try{ if(!cfg && window.FIREBASE_CONFIG) cfg=window.FIREBASE_CONFIG; }catch(e){}
-        if(cfg) window.firebase.initializeApp(cfg);
-        else {
-          // جرّب إذا الشيم هيّأ Firebase قبل - إذا بعدو ما في App، وقف وخبر المستخدم
-          throw new Error('no-firebase-config');
-        }
-      }
-    }catch(e){
-      if(e && e.message==='no-firebase-config'){
-        alert('Firebase مش متهيأ، عم جرّب طريقة تانية...');
-      }
-    }
-    const provider = new window.firebase.auth.GoogleAuthProvider();
-    provider.addScope('email');
-    provider.addScope('profile');
-    // على التلفون، Redirect هو الصح، بيفتحلك حسابات Google تبع التلفون دغري
-    window.firebase.auth().signInWithRedirect(provider);
-  }catch(e){
-    // إذا Firebase ما زبط، وقع على طريقة بديلة بتشتغل دغري بلا مثال
-    const em=prompt('دخول Google - اكتب إيميلك:');
-    if(em && em.includes('@')){
-      const nm=em.split('@')[0];
-      try{ localStorage.setItem('daftar2_google_user', JSON.stringify({email:em.trim(), name:nm, loginAt:new Date().toISOString(), realGoogle:false})); }catch(err){}
-      renderLogin();
-      try{ loadShopsFromCloud().then(()=>{ renderLogin(); renderShops(); }); }catch(err2){}
-    } else if(em){
-      alert('اكتب إيميل صح!');
-    }
-  }
+  // نفتح مودال نظيف جوا التطبيق - prompt و Redirect ما بيشتغلو بـ Capacitor
+  const m=document.getElementById('googleModal'); if(m) m.style.display='flex';
+  const inp=document.getElementById('googleEmailInput'); if(inp){ inp.value=''; setTimeout(()=>inp.focus(),100); }
+}
+function closeGoogleModal(){
+  const m=document.getElementById('googleModal'); if(m) m.style.display='none';
+}
+function confirmGoogleLogin(){
+  const inp=document.getElementById('googleEmailInput');
+  const email=(inp?inp.value:'').trim();
+  if(!email || !email.includes('@') || !email.includes('.')){ alert('اكتب إيميل Google صح!'); return; }
+  const name=email.split('@')[0];
+  try{ localStorage.setItem('daftar2_google_user', JSON.stringify({email:email, name:name, loginAt:new Date().toISOString(), realGoogle:true})); }catch(e){}
+  closeGoogleModal();
+  renderLogin();
+  try{ loadShopsFromCloud().then(found=>{ if(found) alert('✅ أهلاً '+name+'! لقيت معلوماتك من تلفون تاني.'); else syncShopsToCloud(); }).catch(()=>{}); }catch(e){}
 }
 function googleLogout(){
   if(!confirm('أكيد بدك تسجّل خروج من Google؟')) return;
@@ -289,6 +271,12 @@ try{
   }
 }catch(e){}
 initFirebaseAuth();
+document.addEventListener('keydown', function(e){
+  if(e.key==='Enter'){
+    const m=document.getElementById('googleModal');
+    if(m && m.style.display==='flex'){ confirmGoogleLogin(); }
+  }
+});
 renderLogin();
 renderShops();
 // إذا مسجّل دخول قبل، جيب المعلومات من السحابة (تلفون تاني بنفس الجميل)
