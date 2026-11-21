@@ -37,8 +37,13 @@ a:active{transform:scale(.97)}
 .google-modal-box .btn-google{width:100%;justify-content:center}
 .google-modal-box .btn-cancel{background:transparent;border:none;color:#718096;padding:10px;cursor:pointer;font-size:13px;margin-top:6px}
 @media(max-width:430px){body{padding:0 10px 20px}header{padding:25px 17px 22px}h1{font-size:22px}.c{padding:14px;border-radius:17px}.c b{font-size:14px}a{padding:8px 11px;font-size:13px;min-width:58px}}
-</style></head><body><div id="googleModal"><div class="google-modal-box"><div style="font-size:32px">G</div><h3>دخول عبر Google</h3><p>اكتب إيميل Google تبعك وبيفوتك دغري على الدفتر.</p><input id="googleEmailInput" type="email" placeholder="إيميل Google" autocomplete="email"><button class="btn-google" onclick="confirmGoogleLogin()"><span>G</span> دخول</button><br><button class="btn-cancel" onclick="closeGoogleModal()">إلغاء</button></div></div><div id="loginOverlay" style="display:none"><div class="login-box"><div style="font-size:42px;margin-bottom:10px">📒</div><h2>دفتر المحاسبة amhaz</h2><p>لازم تسجّل دخول عبر Google قبل ما تفوت على الدفتر.<br>كبس الزر، بيفتحلك حسابات Google تبع تلفونك، اختار واحد وبيفوت دغري.<br><b style="color:#2e79b5">نفس الجميل على أي تلفون = نفس المحلات ونفس المعلومات.</b></p><button class="btn-google" onclick="googleLogin()"><span>G</span> دخول عبر Google</button><p style="font-size:12px;margin-top:14px;color:#a0aec0">بعد الدخول، بيبين اسمك فوق، وفيك تغيّر كلمة السر للحذف.</p></div></div><div id="appContent"><header><h1>📒 دفتر المحاسبة amhaz</h1><p>إدارة الحسابات والفروع — اختر الدفتر والسنة</p></header>
-<div class="login-card" id="loginCard"></div>
+</style></head><body><div id="googleModal"><div class="google-modal-box"><div style="font-size:32px">📒</div><h3>تسجيل دخول</h3><p>اختار طريقة الدخول، الاثنين إجباري قبل الدفتر، ونفس الحساب على أي تلفون = نفس المعلومات.</p>
+<div style="text-align:right;margin-bottom:12px"><b style="font-size:14px">📱 دخول برقم التلفون - أسهل</b><input id="phoneInput" type="tel" placeholder="رقم التلفون - مثلاً 03 123456" autocomplete="tel" style="margin-top:6px"><button class="btn-google" onclick="confirmPhoneLogin()" style="background:#071a31;color:#fff;border:none;width:100%;justify-content:center">📱 دخول برقم التلفون</button></div>
+<div style="border-top:1px solid #eee;padding-top:12px;text-align:right"><b style="font-size:14px">G دخول عبر Google</b><input id="googleEmailInput" type="email" placeholder="إيميل Google" autocomplete="email" style="margin-top:6px"><button class="btn-google" onclick="confirmGoogleLogin()"><span>G</span> دخول عبر Google</button></div>
+<br><button class="btn-cancel" onclick="closeGoogleModal()">إلغاء</button></div></div><div id="loginOverlay" style="display:none"><div class="login-box"><div style="font-size:42px;margin-bottom:10px">📒</div><h2>دفتر المحاسبة amhaz</h2><p>لازم تسجّل دخول قبل ما تفوت على الدفتر.<br>فيك تدخل <b>برقم التلفون</b> - أسهل، أو <b>عبر Google</b>.<br><b style="color:#2e79b5">نفس الرقم أو نفس الجميل على أي تلفون = نفس المحلات ونفس المعلومات.</b></p><button class="btn-google" onclick="googleLogin()"><span>📱 / G</span> تسجيل دخول - برقم أو Google</button><p style="font-size:12px;margin-top:14px;color:#a0aec0">بعد الدخول، بيبين اسمك فوق، وفيك تغيّر كلمة السر للحذف.</p></div></div><div id="appContent"><header><h1>📒 دفتر المحاسبة amhaz</h1><p>إدارة الحسابات والفروع — اختر الدفتر والسنة</p></header>
+<div style="max-width:760px;margin:10px auto 0;display:flex;justify-content:flex-end"><button onclick="openSettings()" style="border:1px solid #dce6f2;background:#fff;border-radius:12px;padding:8px 14px;font-size:14px;cursor:pointer">⚙️ إعدادات</button></div>
+<div id="settingsModal" style="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10001;display:none;align-items:center;justify-content:center;padding:20px"><div style="background:#fff;border-radius:18px;padding:20px;width:100%;max-width:380px;text-align:center"><h3 style="margin:0 0 12px">⚙️ إعدادات البرنامج</h3><div id="settingsContent"></div><button onclick="closeSettings()" style="margin-top:14px;background:transparent;border:none;color:#718096;padding:8px;cursor:pointer">سكّر</button></div></div>
+<div id="yearPickerModal" style="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10002;display:none;align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this) closeYearPicker()"><div style="background:#fff;border-radius:18px;padding:20px;width:100%;max-width:420px;text-align:center"><h3 id="yearPickerTitle" style="margin:0 0 6px">اختر السنة</h3><div id="yearPickerHint" style="color:#718096;font-size:13px;margin-bottom:12px">اختر السنة لتفتح الدفتر</div><div style="display:none" id="yearPickerShopName"></div><div id="yearPickerYears" style="text-align:center"></div><button onclick="closeYearPicker()" style="margin-top:14px;background:transparent;border:none;color:#718096;padding:8px;cursor:pointer">سكّر</button></div></div>
 <p class="hint">كبس ✏️ عدّل لتعديل اسم المحل.</p>
 <main id="shopsList"></main>
 <div class="bottombar"><button class="btn-add" onclick="addShop()">➕ زيد محل جديد</button></div><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script><script src="firebase-config.js"></script><script src="shim.js"></script><script>
@@ -68,7 +73,25 @@ function loadShops(){
 }
 let shops=loadShops();
 function saveShops(){ try{ localStorage.setItem(KEY, JSON.stringify(shops)); }catch(e){} syncShopsToCloud(); }
-function getUserEmail(){ try{ const u=JSON.parse(localStorage.getItem('daftar2_google_user')||'null'); return u&&u.email?u.email:null; }catch(e){ return null; } }
+function getUserEmail(){
+  try{
+    const u=JSON.parse(localStorage.getItem('daftar2_google_user')||'null');
+    if(!u) return null;
+    if(u.email) return u.email;
+    if(u.phone) return 'phone_'+u.phone;
+    return null;
+  }catch(e){ return null; }
+}
+function getUserDisplay(){
+  try{
+    const u=JSON.parse(localStorage.getItem('daftar2_google_user')||'null');
+    if(!u) return '';
+    if(u.loginType==='phone' && u.phone) return u.phone;
+    if(u.email) return u.email;
+    if(u.phone) return u.phone;
+    return u.name||'';
+  }catch(e){ return ''; }
+}
 // ===== مزامنة على الجميل - نفس المعلومات على أي تلفون بنفس الجميل =====
 function cloudDb(){
   try{
@@ -123,10 +146,24 @@ function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
 function renderShops(){
  const el=document.getElementById('shopsList');
  el.innerHTML=shops.map((sh,idx)=>{
-  const years=YEARS.map(y=>`<a href="ledger.html?b=${encodeURIComponent(sh.code+'-'+y)}&y=${y}&n=${encodeURIComponent(sh.name)}">${y}</a>`).join('');
-  return `<div class="c"><div class="shop-head"><b>${esc(sh.name)}</b><div class="shop-actions"><button onclick="editShop(${idx})" title="عدّل الاسم">✏️ عدّل</button></div></div><div>${years}</div></div>`;
+  const T=DM_LANGS[getLang()]||DM_LANGS.ar;
+  return `<div class="c" onclick="openYearPicker(${idx})" style="cursor:pointer"><div class="shop-head"><b>${esc(sh.name)}</b><div class="shop-actions"><button onclick="event.stopPropagation();editShop(${idx})" title="عدّل الاسم">${T.edit}</button></div></div><div style="color:#718096;font-size:13px;margin-top:4px">${getLang()==='en' ? 'Tap to choose year →' : 'كبس لاختيار السنة ←'}</div></div>`;
  }).join('');
 }
+function openYearPicker(idx){
+  const sh=shops[idx]; if(!sh) return;
+  const modal=document.getElementById('yearPickerModal'); if(!modal) return;
+  document.getElementById('yearPickerShopName').textContent=sh.name;
+  const T=DM_LANGS[getLang()]||DM_LANGS.ar;
+  document.getElementById('yearPickerTitle').textContent=(getLang()==='en' ? 'Choose year - ' : 'اختر السنة - ') + sh.name;
+  document.getElementById('yearPickerHint').textContent=(getLang()==='en' ? 'Choose year to open the book' : 'اختر السنة لتفتح الدفتر');
+  const yearsEl=document.getElementById('yearPickerYears');
+  yearsEl.innerHTML=YEARS.map(y=>`<a href="ledger.html?b=${encodeURIComponent(sh.code+'-'+y)}&y=${y}&n=${encodeURIComponent(sh.name)}" style="display:inline-block;background:#1b3a5f;color:#fff;text-decoration:none;padding:12px 0;width:31%;text-align:center;border-radius:12px;font-size:16px;font-weight:bold;margin:4px 1%">${y}</a>`).join('');
+  modal.style.display='flex';
+  // remember current shop for close
+  modal.dataset.shopIdx=idx;
+}
+function closeYearPicker(){ const m=document.getElementById('yearPickerModal'); if(m) m.style.display='none'; }
 function addShop(){
  const name=prompt('اسم المحل الجديد:');
  if(!name||!name.trim()) return;
@@ -219,21 +256,49 @@ function initFirebaseAuth(){
     });
   }catch(e){}
 }
+// --- Language AR / EN ---
+const DM_LANGS = {
+  ar: { title:'📒 دفتر المحاسبة amhaz', subtitle:'إدارة الحسابات والفروع — اختر الدفتر والسنة', settings:'⚙️ إعدادات', hint:'كبس على اسم المحل لاختيار السنة، وكبس ✏️ عدّل لتعديل اسم المحل.', addShop:'+ إضافة محل جديد', close:'سكّر', settingsTitle:'⚙️ إعدادات البرنامج', welcome:'👋 أهلاً،', loggedGoogle:'مسجّل دخول عبر Google — ', loggedPhone:'📱 رقم: ', changePass:'🔑 تغيير كلمة السر', logout:'🚪 تسجيل خروج', notLogged:'👤 مش مسجّل دخول', loginHint:'سجّل دخول من الشاشة الرئيسية.', syncNote:'نفس الحساب على أي تلفون = نفس المحلات ونفس المعلومات', passNote:'كلمة السر للحذف: فيك تغيرها من هون. المزامنة على السحابة: شغالة.', langTitle:'🌍 اللغة / Language', langHint:'اختر لغة البرنامج / Choose app language', edit:'✏️ عدّل' },
+  en: { title:'📒 Accounting Book amhaz', subtitle:'Manage accounts & branches — choose book and year', settings:'⚙️ Settings', hint:'Tap shop name to choose year, tap ✏️ Edit to edit shop name.', addShop:'+ Add new shop', close:'Close', settingsTitle:'⚙️ App Settings', welcome:'👋 Hello,', loggedGoogle:'Logged in via Google — ', loggedPhone:'📱 Phone: ', changePass:'🔑 Change password', logout:'🚪 Logout', notLogged:'👤 Not logged in', loginHint:'Login from main screen.', syncNote:'Same account on any phone = same shops and same data', passNote:'Delete password: you can change it here. Cloud sync: on.', langTitle:'🌍 Language / اللغة', langHint:'Choose app language / اختر لغة البرنامج', edit:'✏️ Edit' }
+};
+function getLang(){ try{ return localStorage.getItem('dm_lang')||'ar'; }catch(e){ return 'ar'; } }
+function setLang(l){ try{ localStorage.setItem('dm_lang', l); }catch(e){} applyLang(); renderLogin(); }
+function applyLang(){
+  const l=getLang(); const T=DM_LANGS[l]||DM_LANGS.ar;
+  document.documentElement.lang=l; document.documentElement.dir=(l==='ar'?'rtl':'ltr');
+  const h1=document.querySelector('header h1'); if(h1) h1.textContent=T.title;
+  const sub=document.querySelector('header p'); if(sub) sub.textContent=T.subtitle;
+  const stBtn=document.querySelector('button[onclick="openSettings()"]'); if(stBtn) stBtn.textContent=T.settings;
+  const hint=document.querySelector('.hint'); if(hint) hint.textContent=T.hint;
+  const addBtn=document.querySelector('button[onclick="addShop()"]'); if(addBtn) addBtn.textContent=T.addShop;
+  const closeBtn=document.querySelector('#settingsModal button[onclick="closeSettings()"]'); if(closeBtn) closeBtn.textContent=T.close;
+  const stTitle=document.querySelector('#settingsModal h3'); if(stTitle) stTitle.textContent=T.settingsTitle;
+  // lang buttons highlight
+  const arB=document.getElementById('langArBtn'); const enB=document.getElementById('langEnBtn');
+  if(arB&&enB){ if(l==='ar'){ arB.style.background='#1b3a5f'; arB.style.color='#fff'; enB.style.background='#fff'; enB.style.color='#000'; } else { enB.style.background='#1b3a5f'; enB.style.color='#fff'; arB.style.background='#fff'; arB.style.color='#000'; } }
+  // edit buttons
+  document.querySelectorAll('button[onclick^="editShop"]').forEach(b=>{ if(b.textContent.includes('عدّل')||b.textContent.includes('Edit')) b.textContent=T.edit; });
+}
 function renderLogin(){
-  const el=document.getElementById('loginCard');
+  const el=document.getElementById('settingsContent');
   const overlay=document.getElementById('loginOverlay');
   const app=document.getElementById('appContent');
   const user=getGoogleUser();
   if(user){
     if(overlay) overlay.style.display='none';
     if(app) app.classList.remove('hidden');
-    if(el) el.innerHTML=`<b>👋 أهلاً، ${user.name||user.email||'مستخدم Google'}</b><p>مسجّل دخول عبر Google — ${user.email||''}</p><div><button class="btn-small gold" onclick="changePassword()">🔑 تغيير كلمة السر</button><button class="btn-small" onclick="googleLogout()">🚪 تسجيل خروج</button></div>`;
+    const T=DM_LANGS[getLang()]||DM_LANGS.ar;
+    const disp = user.loginType==='phone' ? T.loggedPhone + (user.phone||'') : T.loggedGoogle + (user.email||'');
+    if(el) el.innerHTML=`<div style="text-align:right;background:#f5f7fb;border-radius:12px;padding:12px;margin-bottom:12px"><b>${T.welcome} ${user.name||user.email||user.phone||'مستخدم'}</b><div style="color:#718096;font-size:13px;margin-top:4px">${disp}</div><div style="color:#718096;font-size:12px;margin-top:4px">${T.syncNote}</div></div><div><button class="btn-small gold" onclick="changePassword()">${T.changePass}</button><button class="btn-small" onclick="googleLogout()">${T.logout}</button></div><div style="margin-top:12px;color:#718096;font-size:12px">${T.passNote}</div>
+<div style="margin-top:16px;text-align:right;background:#fff7e0;border:1px solid #f0d48a;border-radius:12px;padding:12px"><b>🌍 اللغة / Language</b><div style="display:flex;gap:8px;margin-top:8px"><button onclick="setLang('ar')" id="langArBtn" style="flex:1;padding:10px;border-radius:10px;border:1px solid #1b3a5f;background:#1b3a5f;color:#fff;font-weight:bold;cursor:pointer">العربية</button><button onclick="setLang('en')" id="langEnBtn" style="flex:1;padding:10px;border-radius:10px;border:1px solid #dce6f2;background:#fff;cursor:pointer">English</button></div><div style="color:#718096;font-size:12px;margin-top:6px">اختر لغة البرنامج / Choose app language</div></div>`;
   } else {
     if(overlay) overlay.style.display='flex';
     if(app) app.classList.add('hidden');
-    if(el) el.innerHTML=`<b>👤 مسجّل دخول عبر Google</b><p>أنت مسجّل دخول.</p>`;
+    const T2=DM_LANGS[getLang()]||DM_LANGS.ar; if(el) el.innerHTML=`<b>${T2.notLogged}</b><p>${T2.loginHint}</p>`;
   }
 }
+function openSettings(){ const m=document.getElementById('settingsModal'); if(m) m.style.display='flex'; renderLogin(); }
+function closeSettings(){ const m=document.getElementById('settingsModal'); if(m) m.style.display='none'; }
 function googleLogin(){
   // نفتح مودال نظيف جوا التطبيق - prompt و Redirect ما بيشتغلو بـ Capacitor
   const m=document.getElementById('googleModal'); if(m) m.style.display='flex';
@@ -241,6 +306,19 @@ function googleLogin(){
 }
 function closeGoogleModal(){
   const m=document.getElementById('googleModal'); if(m) m.style.display='none';
+}
+function confirmPhoneLogin(){
+  const inp=document.getElementById('phoneInput');
+  let phone=(inp?inp.value:'').trim().replace(/\s+/g,'');
+  if(!phone || phone.replace(/[^0-9+]/g,'').length < 7){ alert('اكتب رقم تلفون صح!'); return; }
+  // نظّف الرقم: إذا بلّش بـ 0، شيلو، وإذا ما فيه +961، ضيفو إذا كان لبناني
+  let clean=phone.replace(/[^0-9+]/g,'');
+  if(clean.startsWith('0')) clean='+961'+clean.slice(1);
+  if(!clean.startsWith('+')) clean='+'+clean;
+  try{ localStorage.setItem('daftar2_google_user', JSON.stringify({phone:clean, name:clean, email:'', loginAt:new Date().toISOString(), loginType:'phone'})); }catch(e){}
+  closeGoogleModal();
+  renderLogin();
+  try{ loadShopsFromCloud().then(found=>{ if(found) alert('✅ أهلاً! لقيت معلوماتك من تلفون تاني بنفس الرقم.'); else syncShopsToCloud(); }).catch(()=>{}); }catch(e){}
 }
 function confirmGoogleLogin(){
   const inp=document.getElementById('googleEmailInput');

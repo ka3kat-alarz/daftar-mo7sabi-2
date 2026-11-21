@@ -293,6 +293,7 @@ a{color:var(--accent2)}
  <div class="tab" data-t="mexp">مصروف شهري</div>
  <div class="tab" data-t="rep">تقرير المصروف</div>
  <div class="tab" data-t="book">📚 دفتر الشهر</div>
+ <div class="tab" data-t="settings">⚙️ إعدادات</div>
 </div>
 <div id="toast"></div>
 <div id="shareModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;padding:16px"><div class="card" style="max-width:520px;width:100%;margin:0;max-height:90vh;overflow:auto"><h3 id="shareTitle">مشاركة</h3><textarea id="shareText" style="width:100%;min-height:220px;padding:8px;border:1px solid var(--line);border-radius:6px;background:var(--input);color:var(--text);font-family:inherit;font-size:13px" dir="rtl"></textarea><div class="row" style="margin-top:8px"><a id="shareWa" target="_blank" rel="noopener" style="flex:1;text-align:center;background:#25d366;color:#fff;border-radius:6px;padding:10px;text-decoration:none;font-weight:bold">📲 واتساب</a><button style="flex:1" onclick="copyShare()">📋 نسخ</button><button class="ghost" style="flex:1" onclick="closeShare()">سكّر</button></div></div></div>
@@ -316,6 +317,7 @@ a{color:var(--accent2)}
  <div id="mexp" class="pane" style="display:none"></div>
  <div id="rep" class="pane" style="display:none"></div>
  <div id="book" class="pane" style="display:none"></div>
+ <div id="settings" class="pane" style="display:none"></div>
 </main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
@@ -345,6 +347,7 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
  if(t.dataset.t==='sup') renderSup();
  if(t.dataset.t==='mexp') renderMexp();
  if(t.dataset.t==='book') renderBook();
+ if(t.dataset.t==='settings') renderSettings();
 });
 let SHOP_NAME=new URLSearchParams(location.search).get('n')||"الصمدي الرويس";
 const fileBase=k=>`${SHOP_NAME.replace(/\s+/g,'-')}-${YEAR}-${k}`;
@@ -720,9 +723,6 @@ function jrHeader(){
  for(let d=1;d<=DAYS_IN[curMonth];d++) g+=`<div class="daybtn ${d===curDay?'sel':''} ${(()=>{const t=todayTarget();return t&&t.m===curMonth&&t.d===d?'today':''})()}" id="db_${d}" onclick="pickDay(${d})">${d}<div style="font-size:9px;opacity:.75">${dayNameOf(YEAR,curMonth,d).slice(0,3)}</div><div class="mk"><span id="mk_${d}_1">ص</span><span id="mk_${d}_2">م</span></div></div>`;
  const tt=todayTarget();
  return `<button style="width:100%;margin-bottom:12px;padding:12px;font-size:15px" onclick="goToday()">📅 روح على صفحة اليوم${tt?` (${tt.d}/${tt.m} ${tt.p===1?'صباح':'مسا'})`:''}</button>
- <div class="card"><h3>🔍 بحث داخل الجردة</h3><div class="row"><input id="jardaSearchInput" placeholder="دوّر على بند، اسم عامل، مبلغ..." style="flex:1"><button onclick="searchJarda()">بحث</button></div><div id="jardaSearchResult" style="margin-top:8px"></div></div>
- <div class="card"><h3>📱 تقرير واتساب</h3><div class="row"><button onclick="sendWhatsAppDay()" style="flex:1">📱 ابعت ملخص اليوم واتساب</button><button onclick="sendWhatsAppMonth()" style="flex:1">📱 ابعت ملخص الشهر واتساب</button></div></div>
- <div class="card"><h3>💾 نسخة احتياطية تلقائية</h3><div class="small" style="margin-bottom:8px">كل يوم الساعة 2 بالليل بيعمل نسخة تلقائية على التلفون. إذا انمسح شي بالغلط، فيك ترجعو.</div><div class="row"><button onclick="restoreAutoBackup()">🔄 استعادة آخر نسخة تلقائية</button><button onclick="showBackupInfo()" class="ghost">ℹ️ آخر نسخة</button></div><div id="backupInfo" class="small" style="margin-top:6px"></div></div>
  <div class="card"><h3>اختر الشهر</h3><div class="row">${mbtns}</div></div>
  <div class="card"><h3>اختر اليوم</h3>
  <div class="small" style="margin-bottom:8px"><span class="lg on">ص</span> صباح مكتوب &nbsp; <span class="lg on">م</span> مساء مكتوب &nbsp; <span class="lg">ص</span> فاضي</div>
@@ -1916,7 +1916,38 @@ async function renameShop(){
  try{ await db.doc('meta/shop').set({name:n,updatedAt:Date.now()}); applyShopName(n); toast('✅ صار اسم المحل: '+n); if(document.getElementById('book').style.display==='block') renderBook(); }
  catch(err){ toast('❌ ما انحفظ: '+(err&&err.message?err.message:err),true); }
 }
-async function init(){
+// --- Language AR / EN (same key as home: dm_lang) ---
+const DM_LANGS_LEDGER = {
+ ar:{ home:'🏠 الرئيسية', emp:'دفتر المحاسبة', wd:'سحوبات العمال', jr:'الجردة اليومية', sup:'التجّار', mexp:'مصروف شهري', rep:'تقرير المصروف', book:'📚 دفتر الشهر', settings:'⚙️ إعدادات' },
+ en:{ home:'🏠 Home', emp:'Accounting Book', wd:'Workers Withdrawals', jr:'Daily Inventory', sup:'Suppliers', mexp:'Monthly Expense', rep:'Expense Report', book:'📚 Month Book', settings:'⚙️ Settings' }
+};
+function getLang(){ try{ return localStorage.getItem('dm_lang')||'ar'; }catch(e){ return 'ar'; } }
+function setLang(l){ try{ localStorage.setItem('dm_lang', l); }catch(e){} applyLangLedger(); renderSettings(); }
+function applyLangLedger(){
+  const l=getLang(); const T=DM_LANGS_LEDGER[l]||DM_LANGS_LEDGER.ar;
+  document.documentElement.lang=l; document.documentElement.dir=(l==='ar'?'rtl':'ltr');
+  document.querySelectorAll('.tab').forEach(tab=>{
+    const k=tab.dataset.t; if(T[k]) tab.textContent=T[k];
+  });
+  const arB=document.getElementById('langArBtn'); const enB=document.getElementById('langEnBtn');
+  if(arB&&enB){ if(l==='ar'){ arB.style.background='#1b3a5f'; arB.style.color='#fff'; enB.style.background=''; enB.style.color=''; } else { enB.style.background='#1b3a5f'; enB.style.color='#fff'; arB.style.background=''; arB.style.color=''; } }
+}
+function changePasswordLedger(){ try{ const cur=localStorage.getItem('dm_pass')||'6872'; const np=prompt('كلمة السر الجديدة / New password:'); if(np){ localStorage.setItem('dm_pass', np); alert('تم تغيير كلمة السر ✅ / Password changed ✅'); } }catch(e){} }
+function goHomeLogout(){ try{ localStorage.removeItem('dm_google_user'); }catch(e){} location.href='index.html'; }
+function renderSettings(){
+  const el=document.getElementById('settings'); if(!el) return;
+  // fill account info in settings after render
+  let acc=''; try{ const u=JSON.parse(localStorage.getItem('dm_google_user')||'null'); if(u) acc=(u.name||u.email||u.phone||'')+' — '+(u.email||u.phone||''); }catch(e){}
+  el.innerHTML=`<div class="card"><h3>🔍 بحث داخل الجردة</h3><div class="row"><input id="jardaSearchInput" placeholder="دوّر على بند، اسم عامل، مبلغ..." style="flex:1"><button onclick="searchJarda()">بحث</button></div><div id="jardaSearchResult" style="margin-top:8px"></div></div>
+ <div class="card"><h3>📱 تقرير واتساب</h3><div class="row"><button onclick="sendWhatsAppDay()" style="flex:1">📱 ابعت ملخص اليوم واتساب</button><button onclick="sendWhatsAppMonth()" style="flex:1">📱 ابعت ملخص الشهر واتساب</button></div></div>
+ <div class="card"><h3>💾 نسخة احتياطية تلقائية</h3><div class="small" style="margin-bottom:8px">كل يوم الساعة 2 بالليل بيعمل نسخة تلقائية على التلفون. إذا انمسح شي بالغلط، فيك ترجعو.</div><div class="row"><button onclick="restoreAutoBackup()">🔄 استعادة آخر نسخة تلقائية</button><button onclick="showBackupInfo()" class="ghost">ℹ️ آخر نسخة</button></div><div id="backupInfo" class="small" style="margin-top:6px"></div></div>
+ <div class="card"><h3>🌍 اللغة / Language</h3><div class="row"><button onclick="setLang('ar')" id="langArBtn" style="flex:1">العربية</button><button onclick="setLang('en')" id="langEnBtn" style="flex:1">English</button></div><div class="small" style="margin-top:6px">اختر لغة البرنامج / Choose app language - نفس الاختيار بيضل على كل المحلات</div></div>
+ <div class="card"><h3>👤 حسابي / My Account</h3><div class="small" id="settingsAccount">...</div><div class="row" style="margin-top:8px"><button onclick="changePasswordLedger()">🔑 تغيير كلمة السر / Change password</button><button onclick="goHomeLogout()">🚪 تسجيل خروج / Logout</button></div></div>
+ <div class="card"><h3>ℹ️ عن الدفتر / About</h3><div class="small">دفتر المحاسبة amhaz - السنوات بتزيد لحالها، والمزامنة على نفس الحساب بتجيب نفس المعلومات على أي تلفون. / Accounting Book amhaz - Years auto-increase, same account = same data on any phone.</div></div>`;
+  const accEl=document.getElementById('settingsAccount'); if(accEl) accEl.textContent = acc || 'مسجّل دخول / Logged in';
+  const accEl2=document.getElementById('langArBtn'); if(accEl2) applyLangLedger();
+}
+async function init(){ applyLangLedger(); 
  db=await claude.use('db');
  if(!db){document.body.innerHTML='<div style="padding:30px;text-align:center">تعذّر الاتصال بقاعدة البيانات</div>';return}
  db.collection('employees').onSnapshot(s=>{employeesList=s.docs.map(d=>d.data());{const dl=document.getElementById('empNames'); if(dl) dl.innerHTML=employeesList.map(e=>`<option value="${esc(e.name)}">`).join('');}employeesDocs=s.docs;renderEmp(s.docs);});
