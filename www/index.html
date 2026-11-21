@@ -37,12 +37,15 @@ a:active{transform:scale(.97)}
 .google-modal-box .btn-google{width:100%;justify-content:center}
 .google-modal-box .btn-cancel{background:transparent;border:none;color:#718096;padding:10px;cursor:pointer;font-size:13px;margin-top:6px}
 @media(max-width:430px){body{padding:0 10px 20px}header{padding:25px 17px 22px}h1{font-size:22px}.c{padding:14px;border-radius:17px}.c b{font-size:14px}a{padding:8px 11px;font-size:13px;min-width:58px}}
-</style></head><body><div id="googleModal"><div class="google-modal-box"><div style="font-size:32px">📒</div><h3>تسجيل دخول</h3><p>اختر حساب Google من القائمة، أو ضيف حساب جديد. نفس الجميل على أي تلفون = نفس المعلومات.</p>
-<div id="savedAccountsBox" style="text-align:right;margin-bottom:12px"><b style="font-size:14px">👤 اختر حسابك</b><div id="savedAccountsList" style="margin-top:8px"></div></div>
-<div style="text-align:center;margin:10px 0"><button class="btn-google" onclick="googleLoginReal()" style="width:100%;justify-content:center;background:#fff;color:#1b3a5f;border:1px solid #dce6f2"><span style="background:#fff;color:#4285F4;font-weight:900">G</span> اختر حساب Google من Google</button><div style="font-size:11px;color:#a0aec0;margin-top:4px">بيفتحلك قائمة حسابات Google على تلفونك وتختار واحد</div></div>
-<div style="border-top:1px solid #eee;padding-top:12px;text-align:right"><b style="font-size:14px">➕ ضيف حساب جديد</b><input id="googleEmailInput" type="email" placeholder="إيميل Google جديد" autocomplete="email" style="margin-top:6px"><button class="btn-google" onclick="confirmGoogleLogin()"><span>G</span> دخول بهيدا الإيميل</button></div>
-
-<br><button class="btn-cancel" onclick="closeGoogleModal()">إلغاء</button></div></div><div id="loginOverlay" style="display:none"><div class="login-box"><div style="font-size:42px;margin-bottom:10px">📒</div><h2>دفتر المحاسبة amhaz</h2><p>لازم تسجّل دخول قبل ما تفوت على الدفتر.<br>دخول <b>عبر Google</b> فقط.<br><b style="color:#2e79b5">نفس الجميل على أي تلفون = نفس المحلات ونفس المعلومات.</b></p><button class="btn-google" onclick="googleLogin()"><span>G</span> تسجيل دخول عبر Google</button><p style="font-size:12px;margin-top:14px;color:#a0aec0">بعد الدخول، بيبين اسمك فوق، وفيك تغيّر كلمة السر للحذف.</p></div></div><div id="appContent"><header><h1>📒 دفتر المحاسبة amhaz</h1><p>إدارة الحسابات والفروع — اختر المحل لتفتح الدفتر</p></header>
+</style></head><body><div id="googleModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:10003;align-items:flex-end;justify-content:center" onclick="if(event.target===this) closeGoogleModal()"><div class="google-sheet" style="background:#fff;width:100%;max-width:520px;border-radius:22px 22px 0 0;padding:18px 18px 28px;animation:slideUp .25s ease;max-height:85vh;overflow:auto">
+<div style="width:40px;height:4px;background:#dadce0;border-radius:99px;margin:0 auto 14px"></div>
+<div style="text-align:center"><span style="font-size:28px;font-weight:900;color:#4285F4">G</span><div style="font-size:13px;color:#5f6368;margin-top:2px">Sign in with Google</div><div style="font-size:17px;font-weight:600;margin-top:6px">Choose an account for دفتر المحاسبة amhaz</div></div>
+<div id="savedAccountsList" style="margin-top:16px"></div>
+<div id="googleSheetOptions" style="display:none;margin-top:10px;border-top:1px solid #eee;padding-top:12px;text-align:right"><b style="font-size:14px">➕ ضيف حساب Google جديد</b><input id="googleEmailInput" type="email" placeholder="إيميل Google" autocomplete="email" style="margin-top:6px;width:100%;padding:12px;border:1px solid #dadce0;border-radius:12px;font-size:15px"><button class="btn-google" onclick="confirmGoogleLogin()" style="margin-top:8px;width:100%;justify-content:center"><span>G</span> دخول بهيدا الإيميل</button></div>
+<button onclick="toggleGoogleOptions()" style="background:transparent;border:none;color:#1a73e8;font-size:14px;padding:10px 4px;cursor:pointer;text-align:left;width:100%">Sign-in options</button>
+<button onclick="closeGoogleModal()" style="background:transparent;border:none;color:#5f6368;padding:10px;cursor:pointer;width:100%">Cancel</button>
+</div></div><style>@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}</style>
+<div id="loginOverlay" style="display:none"><div class="login-box"><div style="font-size:42px;margin-bottom:10px">📒</div><h2>دفتر المحاسبة amhaz</h2><p>لازم تسجّل دخول قبل ما تفوت على الدفتر.<br>دخول <b>عبر Google</b> فقط.<br><b style="color:#2e79b5">نفس الجميل على أي تلفون = نفس المحلات ونفس المعلومات.</b></p><button onclick="googleLogin()" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;background:#f97316;color:#fff;border:none;border-radius:999px;padding:15px;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(249,115,22,.35)"><span style="background:#fff;color:#4285F4;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px">G</span> Continue with Google</button><div style="font-size:11px;color:#a0aec0;margin-top:10px;text-align:center">By continuing, you agree to our <u>Terms</u> &amp; <u>Privacy Policy</u></div><p style="font-size:12px;margin-top:14px;color:#a0aec0">بعد الدخول، بيبين اسمك فوق، وفيك تغيّر كلمة السر للحذف.</p></div></div><div id="appContent"><header><h1>📒 دفتر المحاسبة amhaz</h1><p>إدارة الحسابات والفروع — اختر المحل لتفتح الدفتر</p></header>
 <div style="max-width:760px;margin:10px auto 0;display:flex;justify-content:flex-end"><button onclick="openSettings()" style="border:1px solid #dce6f2;background:#fff;border-radius:12px;padding:8px 14px;font-size:14px;cursor:pointer">⚙️ إعدادات</button></div>
 <div id="settingsModal" style="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10001;display:none;align-items:center;justify-content:center;padding:20px"><div style="background:#fff;border-radius:18px;padding:20px;width:100%;max-width:380px;text-align:center"><h3 style="margin:0 0 12px">⚙️ إعدادات البرنامج</h3><div id="settingsContent"></div><button onclick="closeSettings()" style="margin-top:14px;background:transparent;border:none;color:#718096;padding:8px;cursor:pointer">سكّر</button></div></div>
 <p class="hint">كبس ✏️ عدّل لتعديل اسم المحل.</p>
@@ -308,13 +311,20 @@ function saveAccountToList(acc){
 function renderSavedAccounts(){
   const el=document.getElementById('savedAccountsList'); if(!el) return;
   const list=getSavedAccounts().filter(a=>a.loginType!=='phone' && a.email);
-  if(!list.length){ el.innerHTML=`<div style="background:#f5f7fb;border-radius:12px;padding:10px;color:#718096;font-size:13px;text-align:center">ما في حسابات محفوظة بعد.<br>فوت أول مرة، وبعدها بيصير حسابك هون وتختارو دغري.</div>`; return; }
+  if(!list.length){
+    el.innerHTML=`<div style="text-align:center;color:#5f6368;font-size:14px;padding:14px;background:#f8f9fa;border-radius:14px">No saved accounts yet.<br><span style="font-size:12px">Tap Sign-in options below to add your Google account.</span></div>`;
+    return;
+  }
   el.innerHTML=list.map((a,i)=>{
-    const label='G '+(a.email||'');
-    const name=a.name && a.name!==a.email ? a.name+' — ' : '';
-    return `<div style="display:flex;align-items:center;gap:8px;background:#f5f7fb;border:1px solid #e2e8f0;border-radius:12px;padding:10px;margin-bottom:6px"><button onclick="chooseSavedAccount(${i})" style="flex:1;text-align:right;background:transparent;border:none;cursor:pointer"><b style="font-size:14px">${name}${label}</b><div style="color:#718096;font-size:11px">دخول عبر Google</div></button><button onclick="removeSavedAccount(${i});event.stopPropagation()" style="background:transparent;border:none;color:#a0aec0;cursor:pointer;font-size:16px" title="مسح من القائمة">✕</button></div>`;
+    const email=a.email||'';
+    const name=a.name||email.split('@')[0];
+    const initials=(name||'A').trim().slice(0,2).toUpperCase();
+    const colors=['#4285F4','#34A853','#FBBC05','#EA4335','#673AB7'];
+    const bg=colors[i%colors.length];
+    return `<div onclick="chooseSavedAccount(${i})" style="display:flex;align-items:center;gap:12px;padding:12px 8px;border-radius:14px;cursor:pointer"><div style="width:38px;height:38px;border-radius:50%;background:${bg};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0">${initials}</div><div style="flex:1;text-align:left;min-width:0"><div style="font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${name}</div><div style="color:#5f6368;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${email}</div></div><button onclick="event.stopPropagation();removeSavedAccount(${i})" style="background:transparent;border:none;color:#dadce0;cursor:pointer;font-size:16px">✕</button></div>`;
   }).join('');
 }
+function toggleGoogleOptions(){ const o=document.getElementById('googleSheetOptions'); if(o) o.style.display = o.style.display==='none' ? 'block' : 'none'; }
 function chooseSavedAccount(i){
   const list=getSavedAccounts(); const a=list[i]; if(!a) return;
   try{ localStorage.setItem('daftar2_google_user', JSON.stringify({email:a.email, name:a.name||a.email.split('@')[0], loginAt:new Date().toISOString(), loginType:'google', realGoogle:true})); }catch(e){}
@@ -325,6 +335,7 @@ function removeSavedAccount(i){ let list=getSavedAccounts(); list.splice(i,1); t
 function googleLogin(){
   const m=document.getElementById('googleModal'); if(m) m.style.display='flex';
   renderSavedAccounts();
+  const o=document.getElementById('googleSheetOptions'); if(o) o.style.display='none';
   const inp=document.getElementById('googleEmailInput'); if(inp){ inp.value=''; }
 }
 function googleLoginReal(){
