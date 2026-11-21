@@ -37,9 +37,11 @@ a:active{transform:scale(.97)}
 .google-modal-box .btn-google{width:100%;justify-content:center}
 .google-modal-box .btn-cancel{background:transparent;border:none;color:#718096;padding:10px;cursor:pointer;font-size:13px;margin-top:6px}
 @media(max-width:430px){body{padding:0 10px 20px}header{padding:25px 17px 22px}h1{font-size:22px}.c{padding:14px;border-radius:17px}.c b{font-size:14px}a{padding:8px 11px;font-size:13px;min-width:58px}}
-</style></head><body><div id="googleModal"><div class="google-modal-box"><div style="font-size:32px">📒</div><h3>تسجيل دخول</h3><p>اختار طريقة الدخول، الاثنين إجباري قبل الدفتر، ونفس الحساب على أي تلفون = نفس المعلومات.</p>
-<div style="text-align:right;margin-bottom:12px"><b style="font-size:14px">📱 دخول برقم التلفون - أسهل</b><input id="phoneInput" type="tel" placeholder="رقم التلفون - مثلاً 03 123456" autocomplete="tel" style="margin-top:6px"><button class="btn-google" onclick="confirmPhoneLogin()" style="background:#071a31;color:#fff;border:none;width:100%;justify-content:center">📱 دخول برقم التلفون</button></div>
-<div style="border-top:1px solid #eee;padding-top:12px;text-align:right"><b style="font-size:14px">G دخول عبر Google</b><input id="googleEmailInput" type="email" placeholder="إيميل Google" autocomplete="email" style="margin-top:6px"><button class="btn-google" onclick="confirmGoogleLogin()"><span>G</span> دخول عبر Google</button></div>
+</style></head><body><div id="googleModal"><div class="google-modal-box"><div style="font-size:32px">📒</div><h3>تسجيل دخول</h3><p>اختر حسابك من القائمة، أو ضيف حساب جديد. نفس الحساب على أي تلفون = نفس المعلومات.</p>
+<div id="savedAccountsBox" style="text-align:right;margin-bottom:12px"><b style="font-size:14px">👤 اختر حسابك</b><div id="savedAccountsList" style="margin-top:8px"></div></div>
+<div style="text-align:center;margin:10px 0"><button class="btn-google" onclick="googleLoginReal()" style="width:100%;justify-content:center;background:#fff;color:#1b3a5f;border:1px solid #dce6f2"><span style="background:#fff;color:#4285F4;font-weight:900">G</span> اختر حساب Google من Google</button><div style="font-size:11px;color:#a0aec0;margin-top:4px">بيفتحلك قائمة حسابات Google على تلفونك وتختار واحد</div></div>
+<div style="border-top:1px solid #eee;padding-top:12px;text-align:right"><b style="font-size:14px">➕ ضيف حساب جديد</b><input id="googleEmailInput" type="email" placeholder="إيميل Google جديد" autocomplete="email" style="margin-top:6px"><button class="btn-google" onclick="confirmGoogleLogin()"><span>G</span> دخول بهيدا الإيميل</button></div>
+<div style="border-top:1px solid #eee;padding-top:12px;text-align:right;margin-top:12px"><b style="font-size:14px">📱 دخول برقم التلفون - أسهل</b><input id="phoneInput" type="tel" placeholder="رقم التلفون - مثلاً 03 123456" autocomplete="tel" style="margin-top:6px"><button class="btn-google" onclick="confirmPhoneLogin()" style="background:#071a31;color:#fff;border:none;width:100%;justify-content:center">📱 دخول برقم التلفون</button></div>
 <br><button class="btn-cancel" onclick="closeGoogleModal()">إلغاء</button></div></div><div id="loginOverlay" style="display:none"><div class="login-box"><div style="font-size:42px;margin-bottom:10px">📒</div><h2>دفتر المحاسبة amhaz</h2><p>لازم تسجّل دخول قبل ما تفوت على الدفتر.<br>فيك تدخل <b>برقم التلفون</b> - أسهل، أو <b>عبر Google</b>.<br><b style="color:#2e79b5">نفس الرقم أو نفس الجميل على أي تلفون = نفس المحلات ونفس المعلومات.</b></p><button class="btn-google" onclick="googleLogin()"><span>📱 / G</span> تسجيل دخول - برقم أو Google</button><p style="font-size:12px;margin-top:14px;color:#a0aec0">بعد الدخول، بيبين اسمك فوق، وفيك تغيّر كلمة السر للحذف.</p></div></div><div id="appContent"><header><h1>📒 دفتر المحاسبة amhaz</h1><p>إدارة الحسابات والفروع — اختر الدفتر والسنة</p></header>
 <div style="max-width:760px;margin:10px auto 0;display:flex;justify-content:flex-end"><button onclick="openSettings()" style="border:1px solid #dce6f2;background:#fff;border-radius:12px;padding:8px 14px;font-size:14px;cursor:pointer">⚙️ إعدادات</button></div>
 <div id="settingsModal" style="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10001;display:none;align-items:center;justify-content:center;padding:20px"><div style="background:#fff;border-radius:18px;padding:20px;width:100%;max-width:380px;text-align:center"><h3 style="margin:0 0 12px">⚙️ إعدادات البرنامج</h3><div id="settingsContent"></div><button onclick="closeSettings()" style="margin-top:14px;background:transparent;border:none;color:#718096;padding:8px;cursor:pointer">سكّر</button></div></div>
@@ -299,10 +301,69 @@ function renderLogin(){
 }
 function openSettings(){ const m=document.getElementById('settingsModal'); if(m) m.style.display='flex'; renderLogin(); }
 function closeSettings(){ const m=document.getElementById('settingsModal'); if(m) m.style.display='none'; }
+// --- قائمة حساباتي: حفظ كل الحسابات يلي فتت فيهن، عشان تختار منن كل مرة ---
+function getSavedAccounts(){ try{ return JSON.parse(localStorage.getItem('daftar2_saved_accounts')||'[]'); }catch(e){ return []; } }
+function saveAccountToList(acc){
+  try{
+    let list=getSavedAccounts();
+    const key=(acc.email||acc.phone||'').toLowerCase();
+    list=list.filter(a=> (a.email||a.phone||'').toLowerCase()!==key);
+    list.unshift({email:acc.email||'', phone:acc.phone||'', name:acc.name||acc.email||acc.phone||'', loginType:acc.loginType||(acc.phone?'phone':'google'), at:new Date().toISOString()});
+    list=list.slice(0,10);
+    localStorage.setItem('daftar2_saved_accounts', JSON.stringify(list));
+  }catch(e){}
+}
+function renderSavedAccounts(){
+  const el=document.getElementById('savedAccountsList'); if(!el) return;
+  const list=getSavedAccounts();
+  if(!list.length){ el.innerHTML=`<div style="background:#f5f7fb;border-radius:12px;padding:10px;color:#718096;font-size:13px;text-align:center">ما في حسابات محفوظة بعد.<br>فوت أول مرة، وبعدها بيصير حسابك هون وتختارو دغري.</div>`; return; }
+  el.innerHTML=list.map((a,i)=>{
+    const label=a.loginType==='phone' ? '📱 '+(a.phone||'') : 'G '+(a.email||'');
+    const name=a.name && a.name!==a.email && a.name!==a.phone ? a.name+' — ' : '';
+    return `<div style="display:flex;align-items:center;gap:8px;background:#f5f7fb;border:1px solid #e2e8f0;border-radius:12px;padding:10px;margin-bottom:6px"><button onclick="chooseSavedAccount(${i})" style="flex:1;text-align:right;background:transparent;border:none;cursor:pointer"><b style="font-size:14px">${name}${label}</b><div style="color:#718096;font-size:11px">${a.loginType==='phone'?'دخول برقم التلفون':'دخول عبر Google'}</div></button><button onclick="removeSavedAccount(${i});event.stopPropagation()" style="background:transparent;border:none;color:#a0aec0;cursor:pointer;font-size:16px" title="مسح من القائمة">✕</button></div>`;
+  }).join('');
+}
+function chooseSavedAccount(i){
+  const list=getSavedAccounts(); const a=list[i]; if(!a) return;
+  if(a.loginType==='phone'){ try{ localStorage.setItem('daftar2_google_user', JSON.stringify({phone:a.phone, name:a.name||a.phone, email:'', loginAt:new Date().toISOString(), loginType:'phone'})); }catch(e){} }
+  else { try{ localStorage.setItem('daftar2_google_user', JSON.stringify({email:a.email, name:a.name||a.email.split('@')[0], loginAt:new Date().toISOString(), loginType:'google', realGoogle:true})); }catch(e){} }
+  closeGoogleModal(); renderLogin();
+  try{ loadShopsFromCloud().then(found=>{ if(found) alert('✅ أهلاً '+(a.name||'')+'! لقيت معلوماتك.'); else syncShopsToCloud(); }); }catch(e){}
+}
+function removeSavedAccount(i){ let list=getSavedAccounts(); list.splice(i,1); try{ localStorage.setItem('daftar2_saved_accounts', JSON.stringify(list)); }catch(e){} renderSavedAccounts(); }
 function googleLogin(){
-  // نفتح مودال نظيف جوا التطبيق - prompt و Redirect ما بيشتغلو بـ Capacitor
   const m=document.getElementById('googleModal'); if(m) m.style.display='flex';
-  const inp=document.getElementById('googleEmailInput'); if(inp){ inp.value=''; setTimeout(()=>inp.focus(),100); }
+  renderSavedAccounts();
+  const inp=document.getElementById('googleEmailInput'); if(inp){ inp.value=''; }
+}
+function googleLoginReal(){
+  // محاولة فتح قائمة حسابات Google الحقيقية - بيطلعلك كل حساباتك وتختار
+  try{
+    if(window.firebase && window.firebase.auth){
+      try{
+        if(!window.firebase.apps || !window.firebase.apps.length){
+          let cfg=null; try{ if(window.firebaseConfig) cfg=window.firebaseConfig; }catch(e){}
+          try{ if(!cfg && typeof firebaseConfig!=='undefined') cfg=firebaseConfig; }catch(e){}
+          if(cfg) window.firebase.initializeApp(cfg);
+        }
+      }catch(e){}
+      const provider=new window.firebase.auth.GoogleAuthProvider();
+      // هيدي هي يلي بتجبر Google يطلعلك قائمة الحسابات كل مرة
+      provider.setCustomParameters({prompt:'select_account'});
+      const auth=window.firebase.auth();
+      // على التلفون Redirect أضمن من Popup
+      if(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()){
+        auth.signInWithRedirect(provider);
+      } else {
+        auth.signInWithPopup(provider).then(res=>{
+          if(res && res.user){ const u=res.user; saveAccountToList({email:u.email, name:u.displayName||u.email.split('@')[0]}); try{ localStorage.setItem('daftar2_google_user', JSON.stringify({email:u.email, name:u.displayName||u.email.split('@')[0], photo:u.photoURL||'', uid:u.uid, loginAt:new Date().toISOString(), realGoogle:true})); }catch(e){} closeGoogleModal(); renderLogin(); }
+        }).catch(err=>{ alert('ما قدرنا نفتح قائمة Google. اختار حسابك من القائمة يلي تحت، أو اكتب إيميلك.\n'+(err&&err.message?err.message:'')); renderSavedAccounts(); });
+      }
+      return;
+    }
+  }catch(e){}
+  alert('قائمة Google الحقيقية مش مفعّلة بعد على هيدا التلفون. اختار حسابك من القائمة المحفوظة تحت، أو ضيف إيميلك.');
+  renderSavedAccounts();
 }
 function closeGoogleModal(){
   const m=document.getElementById('googleModal'); if(m) m.style.display='none';
@@ -315,7 +376,7 @@ function confirmPhoneLogin(){
   let clean=phone.replace(/[^0-9+]/g,'');
   if(clean.startsWith('0')) clean='+961'+clean.slice(1);
   if(!clean.startsWith('+')) clean='+'+clean;
-  try{ localStorage.setItem('daftar2_google_user', JSON.stringify({phone:clean, name:clean, email:'', loginAt:new Date().toISOString(), loginType:'phone'})); }catch(e){}
+  try{ localStorage.setItem('daftar2_google_user', JSON.stringify({phone:clean, name:clean, email:'', loginAt:new Date().toISOString(), loginType:'phone'})); saveAccountToList({phone:clean, name:clean, loginType:'phone'}); }catch(e){}
   closeGoogleModal();
   renderLogin();
   try{ loadShopsFromCloud().then(found=>{ if(found) alert('✅ أهلاً! لقيت معلوماتك من تلفون تاني بنفس الرقم.'); else syncShopsToCloud(); }).catch(()=>{}); }catch(e){}
@@ -325,7 +386,7 @@ function confirmGoogleLogin(){
   const email=(inp?inp.value:'').trim();
   if(!email || !email.includes('@') || !email.includes('.')){ alert('اكتب إيميل Google صح!'); return; }
   const name=email.split('@')[0];
-  try{ localStorage.setItem('daftar2_google_user', JSON.stringify({email:email, name:name, loginAt:new Date().toISOString(), realGoogle:true})); }catch(e){}
+  try{ localStorage.setItem('daftar2_google_user', JSON.stringify({email:email, name:name, loginAt:new Date().toISOString(), realGoogle:true})); saveAccountToList({email:email, name:name, loginType:'google'}); }catch(e){}
   closeGoogleModal();
   renderLogin();
   try{ loadShopsFromCloud().then(found=>{ if(found) alert('✅ أهلاً '+name+'! لقيت معلوماتك من تلفون تاني.'); else syncShopsToCloud(); }).catch(()=>{}); }catch(e){}
@@ -333,6 +394,7 @@ function confirmGoogleLogin(){
 function googleLogout(){
   if(!confirm('أكيد بدك تسجّل خروج من Google؟')) return;
   try{ localStorage.removeItem('daftar2_google_user'); }catch(e){}
+  // ما منمسح daftar2_saved_accounts - عشان المرة الجاية يطلعلك قائمة حساباتك وتختار
   try{ if(window.firebase && window.firebase.auth) window.firebase.auth().signOut(); }catch(e){}
   // امسح كمان آخر مزامنة عشان التلفون التاني ما يفكر إنك بعدك مسجّل
   renderLogin();
