@@ -1,0 +1,232 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>دفتر المحاسبة amhaz</title><style>
+:root{color-scheme:light;--navy:#09213d;--blue:#2367a6;--gold:#e7b34d;--ink:#172b45;--muted:#718096;--line:#dce6f2}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;padding:0 14px 28px;background:radial-gradient(ellipse at 15% 0%,#d8eaff 0,transparent 42%),linear-gradient(180deg,#eaf1fa,#f5f7fb);font-family:Tahoma,Arial,sans-serif;color:var(--ink)}
+header{max-width:760px;margin:0 auto 18px;padding:28px 20px 24px;border-radius:0 0 28px 28px;background:linear-gradient(130deg,#071a31,#174b7c 68%,#286da4);color:#fff;box-shadow:0 16px 34px #0b315327;position:relative;overflow:hidden}
+header:after{content:"";position:absolute;width:220px;height:220px;border-radius:50%;background:#8bc8ff22;right:-80px;top:-125px}
+h1{font-size:25px;margin:0 0 7px;color:#fff;position:relative;z-index:1}header p{margin:0;color:#d9e9f8;position:relative;z-index:1}
+main{max-width:760px;margin:auto}.c{background:rgba(255,255,255,.9);border:1px solid #fff;border-radius:19px;padding:16px;margin:12px 0;box-shadow:0 8px 24px #173c6410;backdrop-filter:blur(12px)}
+.c b{font-size:16px;display:block;margin-bottom:10px}.c div{display:flex;gap:7px;flex-wrap:wrap}a{background:linear-gradient(135deg,#174675,#2e79b5);color:#fff;text-decoration:none;padding:9px 15px;border-radius:12px;font-weight:bold;box-shadow:0 4px 10px #1b568b22;min-width:68px;text-align:center}
+a:active{transform:scale(.97)}
+.bottombar{display:flex;justify-content:center;margin:18px auto 4px;max-width:760px}
+.bottombar button{border:none;border-radius:14px;padding:13px 26px;font-weight:bold;font-size:16px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.12);width:100%;max-width:760px}
+.btn-add{background:linear-gradient(135deg,#e7b34d,#f2c96e);color:#071a31}
+.shop-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
+.shop-head b{margin:0;flex:1}
+.shop-actions{display:flex;gap:6px}
+.shop-actions button{border:1px solid #dce6f2;background:#fff;border-radius:10px;padding:6px 10px;font-size:13px;cursor:pointer}
+.hint{text-align:center;color:#718096;font-size:13px;margin:8px 0}
+.login-card{background:#fff;border:1px solid #dce6f2;border-radius:16px;padding:14px;margin:12px auto;max-width:760px;box-shadow:0 8px 24px #173c6410;text-align:center}
+.login-card b{display:block;margin-bottom:6px;font-size:15px}
+.login-card p{margin:0 0 10px;color:#718096;font-size:13px}
+.btn-google{background:#fff;border:1px solid #dadce0;color:#3c4043;padding:11px 18px;border-radius:12px;font-weight:bold;font-size:15px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;box-shadow:0 2px 6px rgba(0,0,0,.1)}
+.btn-google span{font-size:18px}
+.btn-small{border:1px solid #dce6f2;background:#fff;border-radius:10px;padding:7px 12px;font-size:13px;cursor:pointer;margin:3px}
+.btn-small.gold{background:linear-gradient(135deg,#e7b34d,#f2c96e);border:none;color:#071a31;font-weight:bold}
+#loginOverlay{position:fixed;inset:0;background:linear-gradient(180deg,#071a31,#174b7c);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
+.login-box{background:#fff;border-radius:22px;padding:26px 22px;max-width:400px;width:100%;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.35)}
+.login-box h2{margin:0 0 8px;font-size:22px;color:#071a31}
+.login-box p{margin:0 0 16px;color:#718096;font-size:14px;line-height:1.6}
+.login-box .btn-google{width:100%;justify-content:center;padding:14px;font-size:16px}
+#appContent.hidden{display:none}
+@media(max-width:430px){body{padding:0 10px 20px}header{padding:25px 17px 22px}h1{font-size:22px}.c{padding:14px;border-radius:17px}.c b{font-size:14px}a{padding:8px 11px;font-size:13px;min-width:58px}}
+</style></head><body><div id="loginOverlay" style="display:none"><div class="login-box"><div style="font-size:42px;margin-bottom:10px">📒</div><h2>دفتر المحاسبة amhaz</h2><p>لازم تسجّل دخول عبر Google قبل ما تفوت على الدفتر.<br>ما في دخول بلا تسجيل.<br><b style="color:#2e79b5">نفس الجميل على أي تلفون = نفس المحلات ونفس المعلومات.</b></p><button class="btn-google" onclick="googleLogin()"><span>G</span> دخول عبر Google</button><p style="font-size:12px;margin-top:14px;color:#a0aec0">بعد الدخول، بيبين اسمك فوق، وفيك تغيّر كلمة السر للحذف.</p></div></div><div id="appContent"><header><h1>📒 دفتر المحاسبة amhaz</h1><p>إدارة الحسابات والفروع — اختر الدفتر والسنة</p></header>
+<div class="login-card" id="loginCard"></div>
+<p class="hint">كبس ✏️ عدّل لتعديل اسم المحل.</p>
+<main id="shopsList"></main>
+<div class="bottombar"><button class="btn-add" onclick="addShop()">➕ زيد محل جديد</button></div><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script><script src="firebase-config.js"></script><script src="shim.js"></script><script>
+// السنوات بتزيد لحالها: من 2026 لحد سنة اليوم + 5، وما بتقل عن 2035
+const START_YEAR=2026;
+const END_YEAR=Math.max(2035, new Date().getFullYear()+5);
+const YEARS=[]; for(let y=START_YEAR;y<=END_YEAR;y++) YEARS.push(y);
+const DEFAULT_SHOPS=[
+ {name:'الصمدي الرويس',code:'ruwais'},
+ {name:'كعكة الأرز',code:'arz'},
+ {name:'الصمدي البرج',code:'burj'},
+ {name:'الصمدي المجمع',code:'mujamma'},
+ {name:'ملحمة الصمدي',code:'malhama'},
+ {name:'محل 6',code:'shop6'},
+ {name:'محل 7',code:'shop7'},
+ {name:'محل 8',code:'shop8'},
+ {name:'محل 9',code:'shop9'},
+ {name:'محل 10',code:'shop10'}
+];
+const KEY='daftar2_shops_v1';
+function loadShops(){
+ try{
+  const s=JSON.parse(localStorage.getItem(KEY)||'null');
+  if(Array.isArray(s)&&s.length) return s;
+ }catch(e){}
+ return JSON.parse(JSON.stringify(DEFAULT_SHOPS));
+}
+let shops=loadShops();
+function saveShops(){ try{ localStorage.setItem(KEY, JSON.stringify(shops)); }catch(e){} syncShopsToCloud(); }
+function getUserEmail(){ try{ const u=JSON.parse(localStorage.getItem('daftar2_google_user')||'null'); return u&&u.email?u.email:null; }catch(e){ return null; } }
+// ===== مزامنة على الجميل - نفس المعلومات على أي تلفون بنفس الجميل =====
+function cloudDb(){
+  try{
+    if(window.firebase && window.firebase.firestore && window.firebaseConfig){
+      if(!window._cloudDb){ try{ if(!window.firebase.apps || !window.firebase.apps.length) window.firebase.initializeApp(window.firebaseConfig); }catch(e){} window._cloudDb=window.firebase.firestore(); }
+      return window._cloudDb;
+    }
+  }catch(e){}
+  return null;
+}
+async function syncShopsToCloud(){
+  const email=getUserEmail(); if(!email) return;
+  const db=cloudDb(); if(!db) return;
+  try{
+    const safeEmail=email.replace(/[^a-zA-Z0-9]/g,'_').toLowerCase();
+    await db.collection('daftar2_users').doc(safeEmail).set({email:email, shops:shops, password:getPassword(), updatedAt:Date.now()}, {merge:true});
+    // console.log('synced to cloud', email);
+  }catch(e){}
+}
+async function loadShopsFromCloud(){
+  const email=getUserEmail(); if(!email) return false;
+  const db=cloudDb(); if(!db) return false;
+  try{
+    const safeEmail=email.replace(/[^a-zA-Z0-9]/g,'_').toLowerCase();
+    const snap=await db.collection('daftar2_users').doc(safeEmail).get();
+    if(snap.exists){
+      const data=snap.data();
+      if(Array.isArray(data.shops) && data.shops.length){
+        shops=data.shops; saveShopsLocalOnly(); renderShops();
+        if(data.password){ try{ localStorage.setItem('daftar2_password', data.password); }catch(e){} }
+        return true;
+      }
+      if(data.password){ try{ localStorage.setItem('daftar2_password', data.password); }catch(e){} }
+    }
+  }catch(e){}
+  return false;
+}
+function saveShopsLocalOnly(){ try{ localStorage.setItem(KEY, JSON.stringify(shops)); }catch(e){} }
+// لما نغيّر كلمة السر، زامنها على السحابة كمان
+const _origChangePassword = null;
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function renderShops(){
+ const el=document.getElementById('shopsList');
+ el.innerHTML=shops.map((sh,idx)=>{
+  const years=YEARS.map(y=>`<a href="ledger.html?b=${encodeURIComponent(sh.code+'-'+y)}&y=${y}&n=${encodeURIComponent(sh.name)}">${y}</a>`).join('');
+  return `<div class="c"><div class="shop-head"><b>${esc(sh.name)}</b><div class="shop-actions"><button onclick="editShop(${idx})" title="عدّل الاسم">✏️ عدّل</button></div></div><div>${years}</div></div>`;
+ }).join('');
+}
+function addShop(){
+ const name=prompt('اسم المحل الجديد:');
+ if(!name||!name.trim()) return;
+ const clean=name.trim();
+ // كود فريد للمحل الجديد - ما بيتكرر
+ const code='shop'+Date.now().toString().slice(-8);
+ shops.push({name:clean,code:code});
+ saveShops(); renderShops();
+}
+function editShop(idx){
+ const sh=shops[idx]; if(!sh) return;
+ const choice=prompt('شو بدك تعمل بـ "'+sh.name+'"؟\nاكتب 1 للتعديل، 2 للحذف:', '1');
+ if(choice===null) return;
+ if(String(choice).trim()==='2'){
+  const pass=prompt('حط كلمة السر لتمسح المحل:');
+  if(pass!==getPassword()){ alert('كلمة السر غلط!'); return; }
+  if(!confirm('أكيد بدك تمسح "'+sh.name+'"؟')) return;
+  shops.splice(idx,1);
+  saveShops(); renderShops();
+  return;
+ }
+ const name=prompt('عدّل اسم المحل:', sh.name);
+ if(!name||!name.trim()) return;
+ sh.name=name.trim();
+ saveShops(); renderShops();
+}
+
+// ===== كلمة السر - فيك تغيرها =====
+function getPassword(){
+  try{ return localStorage.getItem('daftar2_password') || '6872'; }catch(e){ return '6872'; }
+}
+function changePassword(){
+  const oldPass=prompt('حط كلمة السر القديمة:');
+  if(oldPass===null) return;
+  if(oldPass!==getPassword()){ alert('كلمة السر القديمة غلط!'); return; }
+  const newPass=prompt('حط كلمة السر الجديدة (4 أرقام أو أكتر):');
+  if(!newPass||!newPass.trim()) return;
+  if(newPass.trim().length<4){ alert('كلمة السر لازم تكون 4 أرقام على الأقل!'); return; }
+  const confirmPass=prompt('أكّد كلمة السر الجديدة:');
+  if(confirmPass!==newPass.trim()){ alert('التأكيد مش متطابق!'); return; }
+  try{ localStorage.setItem('daftar2_password', newPass.trim()); }catch(e){}
+  syncShopsToCloud();
+  alert('✅ تغيرت كلمة السر! الجديدة: '+newPass.trim()+'\nحفظها، هي يلي رح تمسح فيها المحلات بعد هلق.');
+  renderLogin();
+}
+
+// ===== تسجيل دخول عبر Google =====
+function getGoogleUser(){
+  try{ return JSON.parse(localStorage.getItem('daftar2_google_user')||'null'); }catch(e){ return null; }
+}
+function renderLogin(){
+  const el=document.getElementById('loginCard');
+  const overlay=document.getElementById('loginOverlay');
+  const app=document.getElementById('appContent');
+  const user=getGoogleUser();
+  if(user){
+    if(overlay) overlay.style.display='none';
+    if(app) app.classList.remove('hidden');
+    if(el) el.innerHTML=`<b>👋 أهلاً، ${user.name||user.email||'مستخدم Google'}</b><p>مسجّل دخول عبر Google — ${user.email||''}</p><div><button class="btn-small gold" onclick="changePassword()">🔑 تغيير كلمة السر</button><button class="btn-small" onclick="googleLogout()">🚪 تسجيل خروج</button></div>`;
+  } else {
+    if(overlay) overlay.style.display='flex';
+    if(app) app.classList.add('hidden');
+    if(el) el.innerHTML=`<b>👤 مسجّل دخول عبر Google</b><p>أنت مسجّل دخول.</p>`;
+  }
+}
+function googleLogin(){
+  // 1) إذا Firebase موجود، جرّب دخول Google حقيقي
+  try{
+    if(window.firebase && window.firebaseConfig && window.firebase.auth){
+      const provider=new window.firebase.auth.GoogleAuthProvider();
+      // على التلفون، Redirect أظبط من Popup
+      return window.firebase.auth().signInWithRedirect(provider);
+    }
+  }catch(e){}
+  // 2) إذا ما في Firebase، منستعمل Google Identity Services إذا كان موجود
+  try{
+    if(window.google && window.google.accounts && window.google.accounts.id){
+      // بدو Client ID من Firebase / Google Cloud، إذا ما كان موجود منروح للطريقة اليدوية
+      throw new Error('no client id');
+    }
+  }catch(e){}
+  // 3) طريقة سهلة وبتشتغل دغري بلا إعدادات: اكتب إيميل Google تبعك
+  const email=prompt('اكتب إيميل Google تبعك لتسجيل الدخول:\nمثال: ousama@gmail.com');
+  if(!email||!email.trim()) return;
+  const clean=email.trim();
+  if(!clean.includes('@') || !clean.includes('.')){ alert('اكتب إيميل صح!'); return; }
+  const name=clean.split('@')[0];
+  try{ localStorage.setItem('daftar2_google_user', JSON.stringify({email:clean, name:name, loginAt:new Date().toISOString()})); }catch(e){}
+  alert('✅ أهلاً '+name+'! تم تسجيل الدخول عبر Google.\nعم جيب معلوماتك من السحابة إذا كانو موجودين على تلفون تاني...');
+  renderLogin();
+  // جيب المحلات وكلمة السر من السحابة إذا كانو محفوظين على تلفون تاني بنفس الجميل
+  loadShopsFromCloud().then(found=>{
+    if(found) alert('✅ لقيت معلوماتك من تلفون تاني بنفس الجميل، ورجّعتهن هون!');
+    else syncShopsToCloud();
+  });
+}
+function googleLogout(){
+  if(!confirm('أكيد بدك تسجّل خروج من Google؟')) return;
+  try{ localStorage.removeItem('daftar2_google_user'); }catch(e){}
+  // إذا Firebase موجود، سجّل خروج منو كمان
+  try{ if(window.firebase && window.firebase.auth) window.firebase.auth().signOut(); }catch(e){}
+  renderLogin();
+}
+// إذا رجع من Firebase Redirect، حاول يقرأ المستخدم
+try{
+  if(window.firebase && window.firebase.auth){
+    window.firebase.auth().onAuthStateChanged(function(u){
+      if(u && u.email){
+        try{ localStorage.setItem('daftar2_google_user', JSON.stringify({email:u.email, name:u.displayName||u.email.split('@')[0]})); }catch(e){}
+        renderLogin();
+      }
+    });
+  }
+}catch(e){}
+renderLogin();
+renderShops();
+// إذا مسجّل دخول قبل، جيب المعلومات من السحابة (تلفون تاني بنفس الجميل)
+if(getUserEmail()){
+  loadShopsFromCloud().then(()=>{ renderLogin(); renderShops(); });
+}
+</script></div></body></html>
