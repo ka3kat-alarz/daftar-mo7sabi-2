@@ -1,2 +1,5 @@
-"appId": "com.samadi.daftar2",
-"appName": "دفتر المحاسبة 2",
+{
+  "appId": "com.samadi.daftar2",
+  "appName": "دفتر المحاسبة 2",
+  "webDir": "www"
+}
