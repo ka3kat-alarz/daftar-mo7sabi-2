@@ -1,5 +1,12 @@
 {
   "appId": "com.samadi.daftar2",
   "appName": "دفتر المحاسبة amhaz",
-  "webDir": "www"
+  "webDir": "www",
+  "plugins": {
+    "CapacitorGoogleAuth": {
+      "scopes": ["profile", "email"],
+      "serverClientId": "",
+      "forceCodeForRefreshToken": true
+    }
+  }
 }
